@@ -72,7 +72,6 @@ def determinar_categoria_vton(categoria: str, subcategoria: str = "", nombre: st
 def probar_prenda(
     img_usuario_path: str,
     img_prenda_path: str,
-    prompt: str,
     reintentos: int = 3,
     pausa: float = 5.0,
     prompt: str = "",
