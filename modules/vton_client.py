@@ -78,7 +78,6 @@ def probar_prenda(
     categoria: str = "Parte Superior",
     subcategoria: str = "",
     nombre_prenda: str = "",
-    reintentos: int = 2,
     pausa: float = 4.0,
 ) -> str:
     """
