@@ -1,0 +1,258 @@
+[
+  {
+    "id": "PR001",
+    "nombre": "Pantalones anchos de pinzas",
+    "categoria": "Parte Inferior",
+    "subcategoria": "Pantalones de vestir",
+    "colores": [
+      "Gris"
+    ],
+    "estilo": [
+      "Formal",
+      "Smart Casual"
+    ],
+    "temp_min": 10,
+    "temp_max": 25,
+    "descripcion_detallada": "Pantalones de corte ancho en tejido de mezcla de lana gris con un sutil patrón de microcuadros o espiga muy fino. Presentan pinzas en la parte delantera, cintura alta o media, y bolsillos laterales discretos. El diseño es recto y fluido, ideal para un look elegante y moderno.",
+    "foto_path": "armario/pantalon1.jpg"
+  },
+  {
+    "id": "PR002",
+    "nombre": "Pantalón de Tweed con Pinzas",
+    "categoria": "Parte Inferior",
+    "subcategoria": "Pantalón",
+    "colores": [
+      "marrón"
+    ],
+    "estilo": [
+      "Smart Casual",
+      "Clásico"
+    ],
+    "temp_min": 5,
+    "temp_max": 20,
+    "descripcion_detallada": "Pantalón de corte recto y tiro alto, confeccionado en tejido tipo tweed de color marrón con sutiles motas rojizas y más oscuras que crean una textura visual. Presenta doble pinza en la parte delantera y trabillas para cinturón.",
+    "foto_path": "armario/pantalon2.jpg"
+  },
+  {
+    "id": "PR003",
+    "nombre": "Camiseta básica de manga corta",
+    "categoria": "Parte Superior",
+    "subcategoria": "Camiseta",
+    "colores": [
+      "Negro"
+    ],
+    "estilo": [
+      "Casual",
+      "Básico",
+      "Deportivo"
+    ],
+    "temp_min": 15,
+    "temp_max": 30,
+    "descripcion_detallada": "Camiseta de manga corta en color negro liso, con cuello redondo y corte recto. El tejido parece de algodón, proporcionando una textura suave y un acabado mate. Las mangas son cortas y las costuras son discretas.",
+    "foto_path": "armario/camiseta1.png"
+  },
+  {
+    "id": "PR004",
+    "nombre": "Camiseta con estampado de silla",
+    "categoria": "Parte Superior",
+    "subcategoria": "Camiseta",
+    "colores": [
+      "Beige",
+      "Verde oscuro"
+    ],
+    "estilo": [
+      "Casual"
+    ],
+    "temp_min": 18,
+    "temp_max": 28,
+    "descripcion_detallada": "Camiseta de manga corta y cuello redondo en color beige liso. Presenta un estampado gráfico rectangular en el centro de la parte frontal en verde oscuro, con la ilustraciÃ³n de una silla y texto que dice 'SILLA PA' TOMAR EL FRESCO'. El corte es recto y relajado, fabricada en algodón.",
+    "foto_path": "armario/camiseta2.png"
+  },
+  {
+    "id": "PR005",
+    "nombre": "Cazadora canvas distressed",
+    "categoria": "Abrigo",
+    "subcategoria": "Cazadora",
+    "colores": [
+      "Marrón claro",
+      "Beige"
+    ],
+    "estilo": [
+      "Casual",
+      "Workwear",
+      "Urbano"
+    ],
+    "temp_min": 5,
+    "temp_max": 20,
+    "descripcion_detallada": "Cazadora de corte recto en tejido canvas robusto color marrón claro con efecto desgastado. Presenta cuello clásico de pana marrón oscuro, cierre frontal con cremallera metálica, dos bolsillos delanteros de tipo ojal inclinados y bordes deshilachados en el bajo y puños. Pequeño detalle metÃ¡lico en el pecho izquierdo. Costuras a contraste.",
+    "foto_path": "armario/chaqueta2.png"
+  },
+  {
+    "id": "PR006",
+    "nombre": "Blazer de tweed con ribetes",
+    "categoria": "Abrigo",
+    "subcategoria": "Blazer",
+    "colores": [
+      "Marrón",
+      "Negro"
+    ],
+    "estilo": [
+      "Formal",
+      "Smart Casual",
+      "Clásico"
+    ],
+    "temp_min": 10,
+    "temp_max": 20,
+    "descripcion_detallada": "Blazer de tweed jaspeado en tonos marrones y negros. Presenta un corte recto y cuello redondo sin solapas. La parte frontal tiene una botonadura con botones oscuros. Los bordes del cuello, la botonadura, los puños y los dos bolsillos delanteros tipo parche están detallados con un ribete de color marrón oscuro o negro.",
+    "foto_path": "armario/chaqueta1.png"
+  },
+  {
+    "id": "PR007",
+    "nombre": "Bañador de una pieza floral",
+    "categoria": "Parte Superior",
+    "subcategoria": "Bañador de una pieza",
+    "colores": [
+      "Fucsia",
+      "Rosa",
+      "Naranja",
+      "Azul turquesa",
+      "Verde lima",
+      "Morado",
+      "Amarillo"
+    ],
+    "estilo": [
+      "Veraniego",
+      "Playero",
+      "Retro",
+      "Boho",
+      "Colorido"
+    ],
+    "temp_min": 20,
+    "temp_max": 35,
+    "descripcion_detallada": "Bañador de una pieza con escote en V pronunciado, copas suaves y tirantes anchos. Presenta un estampado floral vibrante de estilo retro con flores de diversos tamaños en tonos fucsia, rosa, naranja, azul turquesa, morado, verde lima y amarillo sobre un fondo predominantemente fucsia. Cuenta con un pequeño lazo decorativo en el centro del busto y cordones fruncidos ajustables en los laterales de la parte inferior para un ajuste personalizado. El tejido es elástico y liso, ideal para actividades acuáticas.",
+    "foto_path": "armario/banador1.png"
+  },
+  {
+    "id": "PR008",
+    "nombre": "Bañador Deportivo Adidas",
+    "categoria": "Parte Superior",
+    "subcategoria": "Bañador",
+    "colores": [
+      "Morado oscuro"
+    ],
+    "estilo": [
+      "Deportivo"
+    ],
+    "temp_min": 20,
+    "temp_max": 35,
+    "descripcion_detallada": "Bañador de una pieza en color morado oscuro con acabado ligeramente brillante. Presenta un escote redondo y tirantes anchos tipo nadadora en la espalda. El logo de Adidas en color lila claro está centrado en el pecho. Diseño ajustado ideal para natación y actividades acuáticas.",
+    "foto_path": "armario/banador2.png"
+  },
+  {
+    "id": "PR009_TOP",
+    "nombre": "Top de bikini deportivo",
+    "categoria": "Parte Superior",
+    "subcategoria": "Top de bikini",
+    "colores": [
+      "Azul marino",
+      "Rosa fucsia",
+      "Rosa claro"
+    ],
+    "estilo": [
+      "Deportivo",
+      "Veraniego"
+    ],
+    "temp_min": 20,
+    "temp_max": 40,
+    "descripcion_detallada": "Top de bikini de estilo deportivo en azul marino con cuello redondo y espalda tipo 'racerback'. Presenta paneles laterales en dos tonos de rosa (fucsia y rosa claro) que se extienden desde las axilas hasta la parte baja del busto. Lleva el logo de Speedo en un color contrastante en el centro del pecho. Tejido elástico, liso y de secado rÃ¡pido, ideal para actividades acuáticas.",
+    "foto_path": "armario/bikini1.png"
+  },
+  {
+    "id": "PR009_BOTTOM",
+    "nombre": "Braguita de bikini deportiva",
+    "categoria": "Parte Inferior",
+    "subcategoria": "Braguita de bikini",
+    "colores": [
+      "Azul marino",
+      "Rosa fucsia",
+      "Rosa claro"
+    ],
+    "estilo": [
+      "Deportivo",
+      "Veraniego"
+    ],
+    "temp_min": 20,
+    "temp_max": 40,
+    "descripcion_detallada": "Braguita de bikini de corte clásico en azul marino, a juego con el top. Incorpora paneles laterales en dos tonos de rosa (fucsia y rosa claro) que se extienden desde la cadera hacia el frente. Cintura elÃ¡stica. Tejido elástico, liso y de secado rÃ¡pido, proporcionando comodidad y sujeción para actividades acuáticas.",
+    "foto_path": "armario/bikini1.png"
+  },
+  {
+    "id": "PR010",
+    "nombre": "Top de Bikini",
+    "categoria": "Parte Superior",
+    "subcategoria": "Top de triangulo",
+    "colores": [
+      "Rojo"
+    ],
+    "estilo": [
+      "Playero",
+      "Casual"
+    ],
+    "temp_min": 25,
+    "temp_max": 40,
+    "descripcion_detallada": "Top de bikini rojo brillante con copas triangulares ajustables, tirantes finos atados al cuello y espalda. Tejido liso, ligeramente fruncido en la base de las copas.",
+    "foto_path": "armario/bikini2.png"
+  },
+  {
+    "id": "PR011",
+    "nombre": "Braguita de Bikini",
+    "categoria": "Parte Inferior",
+    "subcategoria": "Braguita de lazo",
+    "colores": [
+      "Rojo"
+    ],
+    "estilo": [
+      "Playero",
+      "Casual"
+    ],
+    "temp_min": 25,
+    "temp_max": 40,
+    "descripcion_detallada": "Braguita de bikini roja brillante con corte clasico. Ajustable con lazos finos a los lados. Tejido liso.",
+    "foto_path": "armario/bikini2.png"
+  },
+  {
+    "id": "PR013_VESTIDO",
+    "nombre": "Vestido de Noche Largo",
+    "categoria": "Parte Superior",
+    "subcategoria": "Vestido Largo de Gala",
+    "colores": [
+      "Azul Rey"
+    ],
+    "estilo": [
+      "Formal",
+      "Gala",
+      "Elegante"
+    ],
+    "temp_min": 15,
+    "temp_max": 28,
+    "descripcion_detallada": "Vestido largo de noche en un vibrante color azul rey. Presenta un escote en V pronunciado y tirantes finos. El corpiño está profusamente decorado con pedrería brillante y aplicaciones florales en 3D que se extienden delicadamente hacia la cintura. La falda es de tul multicapa, creando un volumen considerable y un efecto vaporoso, con un corte de línea A que cae hasta el suelo.",
+    "foto_path": "armario/trajefiesta1.png"
+  },
+  {
+    "id": "PR012",
+    "nombre": "Minivestido de lentejuelas con flecos",
+    "categoria": "Parte Superior",
+    "subcategoria": "Minivestido de lentejuelas",
+    "colores": [
+      "Rojo"
+    ],
+    "estilo": [
+      "Fiesta",
+      "Glamuroso"
+    ],
+    "temp_min": 18,
+    "temp_max": 28,
+    "descripcion_detallada": "Minivestido halter con escote pronunciado en V, confeccionado completamente en lentejuelas rojas brillantes. La falda está adornada con múltiples flecos de lentejuelas que añaden movimiento al caminar. Corte ajustado y muy corto, ideal para eventos de noche o fiestas.",
+    "foto_path": "armario/trajefiesta2.png"
+  }
+]

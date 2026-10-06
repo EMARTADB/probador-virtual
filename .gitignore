@@ -1,0 +1,11 @@
+.env
+.venv/
+env/Lib/
+env/Scripts/
+env/pyvenv.cfg
+env/Include/
+env/share/
+__pycache__/
+*.pyc
+*.pyo
+.streamlit/secrets.toml
