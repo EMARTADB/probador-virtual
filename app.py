@@ -2,14 +2,15 @@
 Probador Virtual Personal — Armario Digital & Multi-Piece Try-On App
 """
 import io
-import json
-import os
+import hashlib
+import tempfile
 from pathlib import Path
 
 import streamlit as st
 from PIL import Image
 
 from modules import gemini_client, vton_client
+from modules.inventory import InventoryError, load_inventory
 
 # ── Configuración de página ──────────────────────────────────────────────────
 st.set_page_config(
@@ -20,21 +21,64 @@ st.set_page_config(
 )
 
 # ── Constantes ───────────────────────────────────────────────────────────────
-INVENTARIO_PATH = Path("armario/inventario.json")
-SIRI_PATH = Path("armario/siri.png")
+PROJECT_ROOT = Path(__file__).resolve().parent
+INVENTARIO_PATH = PROJECT_ROOT / "armario" / "inventario.json"
+SIRI_PATH = PROJECT_ROOT / "armario" / "siri.png"
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 @st.cache_data
-def cargar_inventario() -> list[dict]:
-    if not INVENTARIO_PATH.exists():
-        return []
-    with open(INVENTARIO_PATH, encoding="utf-8-sig") as f:
-        return json.load(f)
+def cargar_inventario() -> tuple[list[dict], list[str]]:
+    return load_inventory(INVENTARIO_PATH, PROJECT_ROOT)
 
 
-def imagen_existe(path: str) -> bool:
-    return Path(path).exists() if path else False
+def foto_path(prenda: dict) -> str:
+    return prenda.get("foto_path_resuelto", prenda.get("foto_path", ""))
+
+
+def imagen_existe(prenda: dict) -> bool:
+    path = foto_path(prenda)
+    return bool(path) and Path(path).is_file()
+
+
+def es_vestido(prenda: dict) -> bool:
+    return vton_client.determinar_categoria_vton(
+        prenda.get("categoria", ""),
+        prenda.get("subcategoria", ""),
+        prenda.get("nombre", ""),
+    ) == "Dress"
+
+
+def guardar_imagen_subida(data: bytes) -> Path:
+    """Valida, normaliza y guarda temporalmente una imagen sin sus metadatos."""
+    digest = hashlib.sha256(data).hexdigest()
+    destination_dir = Path(tempfile.gettempdir()) / "probador_virtual"
+    destination_dir.mkdir(parents=True, exist_ok=True)
+    destination = destination_dir / f"persona-{digest}.png"
+
+    if not destination.exists():
+        with Image.open(io.BytesIO(data)) as image:
+            image.load()
+            if image.width * image.height > 25_000_000:
+                raise ValueError("La imagen es demasiado grande (máximo 25 megapíxeles).")
+            normalized = image.convert("RGB")
+            normalized.save(destination, format="PNG", optimize=True)
+    return destination
+
+
+@st.cache_data(show_spinner=False)
+def generar_prompt_cacheado(
+    imagen_path: str,
+    nombre: str,
+    descripcion: str,
+    version_archivo: int,
+) -> str:
+    del version_archivo
+    return gemini_client.generar_prompt_desde_imagen(
+        imagen_path=imagen_path,
+        nombre_prenda=nombre,
+        descripcion=descripcion,
+    )
 
 
 def clasificar_prenda(p: dict) -> str:
@@ -51,17 +95,25 @@ def clasificar_prenda(p: dict) -> str:
 
 
 # ── Carga de datos ───────────────────────────────────────────────────────────
-inventario = cargar_inventario()
+try:
+    inventario, avisos_inventario = cargar_inventario()
+except InventoryError as exc:
+    st.error(f"No se pudo cargar el armario: {exc}")
+    st.stop()
 
-prendas_superiores = [p for p in inventario if clasificar_prenda(p) == "superior" and imagen_existe(p.get("foto_path", ""))]
-prendas_inferiores = [p for p in inventario if clasificar_prenda(p) == "inferior" and imagen_existe(p.get("foto_path", ""))]
-prendas_abrigo = [p for p in inventario if clasificar_prenda(p) == "abrigo" and imagen_existe(p.get("foto_path", ""))]
+prendas_superiores = [p for p in inventario if clasificar_prenda(p) == "superior" and imagen_existe(p)]
+prendas_inferiores = [p for p in inventario if clasificar_prenda(p) == "inferior" and imagen_existe(p)]
+prendas_abrigo = [p for p in inventario if clasificar_prenda(p) == "abrigo" and imagen_existe(p)]
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 prendas_seleccionadas = []
 
 with st.sidebar:
     st.title("👗 Mi Armario")
+    if avisos_inventario:
+        with st.expander(f"⚠️ {len(avisos_inventario)} problema(s) en el inventario"):
+            for aviso in avisos_inventario:
+                st.warning(aviso)
     st.divider()
 
     modo = st.radio("Modo de Selección", ["✨ Conjunto Completo (hasta 3 piezas)", "👔 Prenda Única"], index=0)
@@ -77,18 +129,23 @@ with st.sidebar:
         if sel_top != "(Ninguna)":
             p_top = next(p for p in prendas_superiores if f"{p['id']} — {p['nombre']}" == sel_top)
             prendas_seleccionadas.append(p_top)
-            st.image(p_top["foto_path"], caption=p_top["nombre"], width=180)
+            st.image(foto_path(p_top), caption=p_top["nombre"], width=180)
+
+        vestido_seleccionado = sel_top != "(Ninguna)" and es_vestido(p_top)
 
         st.divider()
 
         # 2. Bottom
         st.subheader("2️⃣ Parte Inferior")
-        opc_bot = ["(Ninguna)"] + [f"{p['id']} — {p['nombre']}" for p in prendas_inferiores]
-        sel_bot = st.selectbox("Seleccionar Pantalón / Falda", opc_bot, key="sel_bot")
-        if sel_bot != "(Ninguna)":
-            p_bot = next(p for p in prendas_inferiores if f"{p['id']} — {p['nombre']}" == sel_bot)
-            prendas_seleccionadas.append(p_bot)
-            st.image(p_bot["foto_path"], caption=p_bot["nombre"], width=180)
+        if vestido_seleccionado:
+            st.caption("No se añade una parte inferior a un vestido completo.")
+        else:
+            opc_bot = ["(Ninguna)"] + [f"{p['id']} — {p['nombre']}" for p in prendas_inferiores]
+            sel_bot = st.selectbox("Seleccionar Pantalón / Falda", opc_bot, key="sel_bot")
+            if sel_bot != "(Ninguna)":
+                p_bot = next(p for p in prendas_inferiores if f"{p['id']} — {p['nombre']}" == sel_bot)
+                prendas_seleccionadas.append(p_bot)
+                st.image(foto_path(p_bot), caption=p_bot["nombre"], width=180)
 
         st.divider()
 
@@ -99,7 +156,7 @@ with st.sidebar:
         if sel_out != "(Ninguna)":
             p_out = next(p for p in prendas_abrigo if f"{p['id']} — {p['nombre']}" == sel_out)
             prendas_seleccionadas.append(p_out)
-            st.image(p_out["foto_path"], caption=p_out["nombre"], width=180)
+            st.image(foto_path(p_out), caption=p_out["nombre"], width=180)
 
     else:
         st.subheader("Seleccionar Prenda Única")
@@ -108,7 +165,7 @@ with st.sidebar:
 
         items_filtrados = [
             p for p in inventario
-            if (cat_sel == "Todas" or p["categoria"] == cat_sel) and imagen_existe(p.get("foto_path", ""))
+            if (cat_sel == "Todas" or p["categoria"] == cat_sel) and imagen_existe(p)
         ]
         nombres = [f"{p['id']} — {p['nombre']}" for p in items_filtrados]
 
@@ -116,7 +173,7 @@ with st.sidebar:
             seleccion = st.selectbox("Prenda", nombres)
             p_sel = next(p for p in items_filtrados if f"{p['id']} — {p['nombre']}" == seleccion)
             prendas_seleccionadas.append(p_sel)
-            st.image(p_sel["foto_path"], caption=p_sel["nombre"], width=200)
+            st.image(foto_path(p_sel), caption=p_sel["nombre"], width=200)
 
             st.markdown(f"**Estilo:** {', '.join(p_sel.get('estilo', []))}")
             st.markdown(f"**Colores:** {', '.join(p_sel.get('colores', []))}")
@@ -138,10 +195,24 @@ col_ref, col_prendas, col_resultado = st.columns([1, 1, 1.2])
 
 with col_ref:
     st.subheader("📸 Modelo Base")
-    if SIRI_PATH.exists():
-        st.image(str(SIRI_PATH), caption="Siri (Referencia)", use_container_width=True)
+    archivo_usuario = st.file_uploader(
+        "Sube una foto de cuerpo entero (opcional)",
+        type=["png", "jpg", "jpeg", "webp"],
+        help="Si no subes una foto, se utilizará la imagen de ejemplo.",
+    )
+    imagen_referencia_path = SIRI_PATH
+    if archivo_usuario is not None:
+        try:
+            imagen_referencia_path = guardar_imagen_subida(archivo_usuario.getvalue())
+            st.image(str(imagen_referencia_path), caption="Tu foto", use_container_width=True)
+        except (OSError, ValueError) as exc:
+            st.error(f"No se pudo usar la imagen: {exc}")
+            imagen_referencia_path = Path()
+    elif SIRI_PATH.exists():
+        st.image(str(SIRI_PATH), caption="Siri (imagen de ejemplo)", use_container_width=True)
     else:
         st.error(f"Imagen no encontrada: `{SIRI_PATH}`")
+    st.caption("La foto se envía a un Space externo de Hugging Face para generar el resultado.")
 
 with col_prendas:
     st.subheader(f"👔 Selección ({len(prendas_seleccionadas)} piezas)")
@@ -149,8 +220,8 @@ with col_prendas:
         for idx, prenda in enumerate(prendas_seleccionadas):
             st.markdown(f"**Pieza {idx + 1}:** {prenda['nombre']}")
             st.caption(f"Categoría: {prenda['categoria']} | Estilo: {', '.join(prenda.get('estilo', []))}")
-            if imagen_existe(prenda.get("foto_path", "")):
-                st.image(prenda["foto_path"], width=220)
+            if imagen_existe(prenda):
+                st.image(foto_path(prenda), width=220)
             st.divider()
     else:
         st.info("👈 Selecciona al menos una prenda en el menú lateral.")
@@ -164,22 +235,24 @@ with col_resultado:
         st.session_state.historial = []
 
     if boton:
-        if not SIRI_PATH.exists():
-            st.error("⚠️ No se encontró la imagen de referencia `armario/siri.png`.")
+        if not imagen_referencia_path.is_file():
+            st.error("⚠️ Selecciona una imagen de referencia válida.")
         else:
             analisis_dict = {}
             status_box = st.status("🚀 Procesando look virtual...", expanded=True)
 
             try:
-                # Paso 1: Análisis Multimodal con Gemini
-                status_box.write("🤖 Analizando prendas con Gemini...")
+                # Paso 1: un único prompt multimodal por prenda, cacheado.
+                status_box.write("🤖 Preparando prendas con Gemini...")
                 for p in prendas_seleccionadas:
-                    analisis = gemini_client.analizar_prenda(
-                        imagen_path=p["foto_path"],
-                        descripcion=p.get("descripcion_detallada", ""),
+                    path_prenda = Path(foto_path(p))
+                    prompt_en = generar_prompt_cacheado(
+                        str(path_prenda),
+                        p["nombre"],
+                        p.get("descripcion_detallada", ""),
+                        path_prenda.stat().st_mtime_ns,
                     )
-                    prompt_en = gemini_client.generar_prompt_vton(analisis, p["nombre"])
-                    analisis_dict[p["id"]] = {"analisis": analisis, "prompt": prompt_en}
+                    analisis_dict[p["id"]] = {"prompt": prompt_en}
                     status_box.write(f"✓ **{p['nombre']}**: *'{prompt_en}'*")
 
                 # Paso 2: Generación Virtual Try-On
@@ -189,13 +262,14 @@ with col_resultado:
                     status_box.write(f"⏳ Procesando pieza {actual}/{total}: **{nombre}**...")
 
                 resultado_path = vton_client.probar_conjunto(
-                    img_usuario_path=str(SIRI_PATH),
+                    img_usuario_path=str(imagen_referencia_path),
                     prendas=prendas_seleccionadas,
                     analisis_dict=analisis_dict,
                     progreso_callback=actualizar_progreso,
                 )
 
-                img_resultado = Image.open(resultado_path)
+                with Image.open(resultado_path) as generated_image:
+                    img_resultado = generated_image.copy()
                 st.session_state.resultado_img = img_resultado
 
                 nombres_look = " + ".join([p["nombre"] for p in prendas_seleccionadas])

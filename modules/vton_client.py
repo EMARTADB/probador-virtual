@@ -12,26 +12,22 @@ from gradio_client import Client, handle_file
 
 load_dotenv()
 
-HF_SPACE = "yisol/IDM-VTON"
-IDM_SPACE = "yisol/IDM-VTON"
-OOTD_SPACE = "levihsu/OOTDiffusion"
+IDM_SPACE = os.getenv("IDM_SPACE", "yisol/IDM-VTON")
+OOTD_SPACE = os.getenv("OOTD_SPACE", "levihsu/OOTDiffusion")
+IDM_API_NAME = os.getenv("IDM_API_NAME", "/tryon")
+OOTD_API_NAME = os.getenv("OOTD_API_NAME", "/process_dc")
 
-_client = None
 _idm_client = None
 _ootd_client = None
+
+
+class VTONError(RuntimeError):
+    """Error contextualizado de los proveedores de Virtual Try-On."""
 
 
 def _get_headers() -> dict:
     hf_token = os.getenv("HF_TOKEN")
     return {"Authorization": f"Bearer {hf_token}"} if hf_token else {}
-
-
-def _get_client() -> Client:
-    """Inicializa y devuelve el cliente Gradio (singleton)."""
-    global _client
-    if _client is None:
-        _client = Client(HF_SPACE, headers=_get_headers())
-    return _client
 
 
 def _get_idm_client() -> Client:
@@ -66,17 +62,17 @@ def _normalizar_resultado(resultado):
             return None
         primer = resultado[0]
         if isinstance(primer, dict):
-            for key in ("image", "output", "path"):
-                if key in primer:
-                    return primer[key]
-            return primer
+            return _normalizar_resultado(primer)
         if isinstance(primer, (str, bytes, os.PathLike)):
             return str(primer)
         return primer
     if isinstance(resultado, dict):
         for key in ("image", "output", "path"):
             if key in resultado:
-                return resultado[key]
+                return _normalizar_resultado(resultado[key])
+        return None
+    if hasattr(resultado, "path"):
+        return str(resultado.path)
     return resultado
 
 
@@ -91,6 +87,13 @@ def probar_prenda(
     nombre_prenda: str = "",
 ) -> str:
     """Ejecuta el virtual try-on para una prenda concreta."""
+    for label, path in (
+        ("imagen de la persona", img_usuario_path),
+        ("imagen de la prenda", img_prenda_path),
+    ):
+        if not os.path.isfile(path):
+            raise FileNotFoundError(f"No existe la {label}: {path}")
+
     vton_cat = determinar_categoria_vton(categoria, subcategoria, nombre_prenda)
 
     for intento in range(1, reintentos + 1):
@@ -105,13 +108,14 @@ def probar_prenda(
                     n_steps=20,
                     image_scale=2.0,
                     seed=-1,
-                    api_name="/process_dc",
+                    api_name=OOTD_API_NAME,
                 )
                 image = _normalizar_resultado(result)
                 if image:
                     return image
                 raise RuntimeError("OOTDiffusion no devolvió una imagen válida.")
 
+            idm_error = None
             try:
                 idm = _get_idm_client()
                 result = idm.predict(
@@ -126,33 +130,44 @@ def probar_prenda(
                     is_checked_crop=False,
                     denoise_steps=30,
                     seed=42,
-                    api_name="/tryon",
+                    api_name=IDM_API_NAME,
                 )
                 image = _normalizar_resultado(result)
                 if image:
                     return image
-            except Exception:
+                raise RuntimeError("IDM-VTON no devolvió una imagen válida")
+            except Exception as exc:
+                idm_error = exc
                 ootd = _get_ootd_client()
-                result = ootd.predict(
-                    vton_img=handle_file(img_usuario_path),
-                    garm_img=handle_file(img_prenda_path),
-                    category="Upper-body",
-                    n_samples=1,
-                    n_steps=20,
-                    image_scale=2.0,
-                    seed=-1,
-                    api_name="/process_dc",
-                )
-                image = _normalizar_resultado(result)
-                if image:
-                    return image
-                raise
+                try:
+                    result = ootd.predict(
+                        vton_img=handle_file(img_usuario_path),
+                        garm_img=handle_file(img_prenda_path),
+                        category="Upper-body",
+                        n_samples=1,
+                        n_steps=20,
+                        image_scale=2.0,
+                        seed=-1,
+                        api_name=OOTD_API_NAME,
+                    )
+                    image = _normalizar_resultado(result)
+                    if image:
+                        return image
+                    raise RuntimeError("no devolvió una imagen válida")
+                except Exception as ootd_error:
+                    raise VTONError(
+                        "Fallaron ambos proveedores para una prenda superior. "
+                        f"IDM-VTON: {idm_error}. OOTDiffusion: {ootd_error}."
+                    ) from ootd_error
 
             raise RuntimeError("El modelo no devolvió una imagen válida.")
 
         except Exception as e:
             if intento == reintentos:
-                raise RuntimeError(f"Virtual Try-On falló tras {reintentos} intentos. Último error: {e}") from e
+                raise VTONError(
+                    f"Virtual Try-On falló tras {reintentos} intentos para "
+                    f"{nombre_prenda or img_prenda_path}. Último error: {e}"
+                ) from e
             time.sleep(pausa)
 
     raise RuntimeError("No se pudo generar el resultado final.")
@@ -186,7 +201,7 @@ def probar_conjunto(
         prompt_vton = analisis_dict.get(prenda["id"], {}).get("prompt", "")
         imagen_actual = probar_prenda(
             img_usuario_path=imagen_actual,
-            img_prenda_path=prenda["foto_path"],
+            img_prenda_path=prenda.get("foto_path_resuelto", prenda["foto_path"]),
             prompt=prompt_vton,
             categoria=prenda.get("categoria", ""),
             subcategoria=prenda.get("subcategoria", ""),

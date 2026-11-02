@@ -2,11 +2,14 @@
 Cliente para la API de Google Gemini en el Probador Virtual.
 Realiza el análisis multimodal de prendas y la traducción/generación de prompts VTON.
 """
-import base64
 import os
 from pathlib import Path
 from google import genai
 from google.genai import types
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 def _get_client() -> genai.Client:
     """Inicializa el cliente de Gemini usando la clave API del entorno o de Streamlit Secrets."""
@@ -68,6 +71,39 @@ def analizar_prenda(imagen_path: str, descripcion: str = "") -> str:
     )
     
     return response.text if response.text else "Prenda de vestir estándar."
+
+
+def generar_prompt_desde_imagen(
+    imagen_path: str,
+    nombre_prenda: str,
+    descripcion: str = "",
+) -> str:
+    """Genera el prompt VTON en una única llamada multimodal a Gemini."""
+    client = _get_client()
+    with open(imagen_path, "rb") as file:
+        image_bytes = file.read()
+
+    prompt = (
+        f"Create a short English prompt for a virtual try-on diffusion model for "
+        f"the garment named '{nombre_prenda}'. Inspect the image and describe only "
+        "the garment's visible color, fabric, pattern, cut, sleeves or legs, neckline "
+        "and fit. Use one or two precise sentences. Do not describe a person, pose, "
+        "background or photography."
+    )
+    if descripcion:
+        prompt += f"\nCatalog notes (use only when consistent with the image): {descripcion}"
+
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=[
+            types.Part.from_bytes(
+                data=image_bytes,
+                mime_type=_get_mime_type(imagen_path),
+            ),
+            prompt,
+        ],
+    )
+    return response.text.strip() if response.text else f"A high quality {nombre_prenda}."
 
 
 def generar_prompt_vton(analisis: str, nombre_prenda: str) -> str:

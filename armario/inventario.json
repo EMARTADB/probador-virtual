@@ -65,7 +65,7 @@
     ],
     "temp_min": 18,
     "temp_max": 28,
-    "descripcion_detallada": "Camiseta de manga corta y cuello redondo en color beige liso. Presenta un estampado gráfico rectangular en el centro de la parte frontal en verde oscuro, con la ilustraciÃ³n de una silla y texto que dice 'SILLA PA' TOMAR EL FRESCO'. El corte es recto y relajado, fabricada en algodón.",
+    "descripcion_detallada": "Camiseta de manga corta y cuello redondo en color beige liso. Presenta un estampado gráfico rectangular en el centro de la parte frontal en verde oscuro, con la ilustración de una silla y texto que dice 'SILLA PA' TOMAR EL FRESCO'. El corte es recto y relajado, fabricada en algodón.",
     "foto_path": "armario/camiseta2.png"
   },
   {
@@ -84,7 +84,7 @@
     ],
     "temp_min": 5,
     "temp_max": 20,
-    "descripcion_detallada": "Cazadora de corte recto en tejido canvas robusto color marrón claro con efecto desgastado. Presenta cuello clásico de pana marrón oscuro, cierre frontal con cremallera metálica, dos bolsillos delanteros de tipo ojal inclinados y bordes deshilachados en el bajo y puños. Pequeño detalle metÃ¡lico en el pecho izquierdo. Costuras a contraste.",
+    "descripcion_detallada": "Cazadora de corte recto en tejido canvas robusto color marrón claro con efecto desgastado. Presenta cuello clásico de pana marrón oscuro, cierre frontal con cremallera metálica, dos bolsillos delanteros de tipo ojal inclinados y bordes deshilachados en el bajo y puños. Pequeño detalle metálico en el pecho izquierdo. Costuras a contraste.",
     "foto_path": "armario/chaqueta2.png"
   },
   {
@@ -164,7 +164,7 @@
     ],
     "temp_min": 20,
     "temp_max": 40,
-    "descripcion_detallada": "Top de bikini de estilo deportivo en azul marino con cuello redondo y espalda tipo 'racerback'. Presenta paneles laterales en dos tonos de rosa (fucsia y rosa claro) que se extienden desde las axilas hasta la parte baja del busto. Lleva el logo de Speedo en un color contrastante en el centro del pecho. Tejido elástico, liso y de secado rÃ¡pido, ideal para actividades acuáticas.",
+    "descripcion_detallada": "Top de bikini de estilo deportivo en azul marino con cuello redondo y espalda tipo 'racerback'. Presenta paneles laterales en dos tonos de rosa (fucsia y rosa claro) que se extienden desde las axilas hasta la parte baja del busto. Lleva el logo de Speedo en un color contrastante en el centro del pecho. Tejido elástico, liso y de secado rápido, ideal para actividades acuáticas.",
     "foto_path": "armario/bikini1.png"
   },
   {
@@ -183,7 +183,7 @@
     ],
     "temp_min": 20,
     "temp_max": 40,
-    "descripcion_detallada": "Braguita de bikini de corte clásico en azul marino, a juego con el top. Incorpora paneles laterales en dos tonos de rosa (fucsia y rosa claro) que se extienden desde la cadera hacia el frente. Cintura elÃ¡stica. Tejido elástico, liso y de secado rÃ¡pido, proporcionando comodidad y sujeción para actividades acuáticas.",
+    "descripcion_detallada": "Braguita de bikini de corte clásico en azul marino, a juego con el top. Incorpora paneles laterales en dos tonos de rosa (fucsia y rosa claro) que se extienden desde la cadera hacia el frente. Cintura elástica. Tejido elástico, liso y de secado rápido, proporcionando comodidad y sujeción para actividades acuáticas.",
     "foto_path": "armario/bikini1.png"
   },
   {
