@@ -25,4 +25,5 @@ Desarrollar una aplicación web interactiva local en **Python** con **Streamlit*
 ## 🛠️ Requisitos e Instalación
 
 ### Dependencias de Python
-Instalar las librerías necesarias ejecutando en la terminal:
+La instalación, configuración, privacidad, ejecución y pruebas se documentan en
+el archivo [`README.md`](../README.md) de la raíz del proyecto.
